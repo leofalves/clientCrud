@@ -3,6 +3,8 @@ package io.leofalves.clientCrud.services;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -49,5 +51,22 @@ public class ClientService {
 		client.setChildren(dto.getChildren());
 		client = clientRepository.save(client);
 		return new ClientDto(client);
+	}
+
+	@SuppressWarnings("deprecation")
+	@Transactional
+	public ClientDto update(Long id, ClientDto clientDto) {
+		try {
+			Client client = clientRepository.getOne(id); // #Question: Do we use getById(id) instead?
+			client.setName(clientDto.getName());
+			client.setBirthDate(clientDto.getBirthDate());
+			client.setChildren(clientDto.getChildren());
+			client.setCpf(clientDto.getCpf());
+			client.setIncome(clientDto.getIncome());
+			client = clientRepository.save(client);
+			return new ClientDto(client);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Client not found. id = " + id);
+		}
 	}
 }
